@@ -14,7 +14,20 @@ datasource db {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  name  String
-  email String @unique
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  password  String
+  companies Company[] // A user can create multiple companies
+}
+
+model Company {
+  id             Int      @id @default(autoincrement())
+  name           String // Mandatory
+  email          String? // Optional
+  whatsappNumber String? // Optional
+  createdBy      Int // Foreign key to User
+  user           User     @relation(fields: [createdBy], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }

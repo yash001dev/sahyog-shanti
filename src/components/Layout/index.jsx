@@ -38,6 +38,7 @@ import {
 } from "../ui/table";
 import { Badge } from "../ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { useRouter } from "next/router";
 
 export const description =
   "An application shell with a header and main content area. The header has a navbar, a search input and and a user nav dropdown. The user nav is toggled by a button with an avatar image.";
@@ -46,7 +47,13 @@ export const iframeHeight = "825px";
 
 export const containerClassName = "w-full h-full";
 
-export default function Dashboard({ children }) {
+export default function Dashboard({ activeState = "/dashboard", children }) {
+  const router = useRouter();
+
+  const highlightActiveLink = (href) => {
+    return router.pathname === href ? "#ff9100e2" : "#6B7280";
+  };
+
   return (
     <div className="flex min-h-screen w-full flex-col">
       <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -59,32 +66,37 @@ export default function Dashboard({ children }) {
             <span className="sr-only">Acme Inc</span>
           </Link>
           <Link
-            href="#"
+            href="/dashboard"
             className="text-foreground transition-colors hover:text-foreground"
+            style={{ color: highlightActiveLink("/dashboard") }}
           >
             Dashboard
           </Link>
           <Link
-            href="#"
+            href="/dashboard/company"
             className="text-muted-foreground transition-colors hover:text-foreground"
+            style={{ color: highlightActiveLink("/dashboard/company") }}
           >
-            Orders
+            Company
+          </Link>
+          <Link
+            href="/dashboard/purchase-order"
+            className="text-muted-foreground transition-colors hover:text-foreground"
+            style={{ color: highlightActiveLink("/dashboard/purchase-order") }}
+          >
+            Purchase Order
           </Link>
           <Link
             href="#"
             className="text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Products
-          </Link>
-          <Link
-            href="#"
-            className="text-muted-foreground transition-colors hover:text-foreground"
+            style={{ color: highlightActiveLink("/customers") }}
           >
             Customers
           </Link>
           <Link
             href="#"
             className="text-muted-foreground transition-colors hover:text-foreground"
+            style={{ color: highlightActiveLink("/analytics") }}
           >
             Analytics
           </Link>
@@ -103,38 +115,36 @@ export default function Dashboard({ children }) {
           <SheetContent side="left" className="bg-white">
             <nav className="grid gap-6 text-lg font-medium">
               <Link
-                href="#"
+                href="/dashboard"
                 className="flex items-center gap-2 text-lg font-semibold"
+                style={{ color: highlightActiveLink("/dashboard") }}
               >
                 <Package2 className="h-6 w-6" />
                 <span className="sr-only">Acme Inc</span>
               </Link>
-              <Link href="#" className="hover:text-foreground">
+              <Link
+                href="/dashboard"
+                className="hover:text-foreground"
+                style={{ color: highlightActiveLink("/dashboard") }}
+              >
                 Dashboard
               </Link>
               <Link
-                href="#"
+                href="/dashboard/company"
                 className="text-muted-foreground hover:text-foreground"
+                style={{ color: highlightActiveLink("/dashboard/company") }}
               >
-                Orders
+                Company
               </Link>
+
               <Link
-                href="#"
+                href="/dashboard/purchase-order"
                 className="text-muted-foreground hover:text-foreground"
+                style={{
+                  color: highlightActiveLink("/dashboard/purchase-order"),
+                }}
               >
-                Products
-              </Link>
-              <Link
-                href="#"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Customers
-              </Link>
-              <Link
-                href="#"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Analytics
+                Purchase Order
               </Link>
             </nav>
           </SheetContent>

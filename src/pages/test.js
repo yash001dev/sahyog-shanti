@@ -9,10 +9,11 @@ export default function Home() {
   const [createUser] = useCreateUserMutation();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await createUser({ name, email });
+    await createUser({ name, email, password });
   };
 
   return (
@@ -41,6 +42,13 @@ export default function Home() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
+        />
+        {/* Password */}
+        <input
+          className="border p-2 mb-2"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
         />
         <button className="bg-blue-500 text-white p-2" type="submit">
           Create User

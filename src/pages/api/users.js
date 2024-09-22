@@ -10,13 +10,14 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const { name, email } = req.body;
+    const { name, email, password } = req.body;
     try {
       // Create a new user in the database
       const newUser = await prisma.user.create({
         data: {
           name,
           email,
+          password,
         },
       });
       return res.status(201).json(newUser);
