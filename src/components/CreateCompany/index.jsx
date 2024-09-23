@@ -15,6 +15,9 @@ import {
 import { Input } from "@/components/ui/input";
 import Layout from "@/components/Layout";
 import { useCreateCompanyMutation } from "../../../store/api/companyApi";
+import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
+import ButtonLoading from "../ui/buttonloading";
 
 // Define the schema using Zod
 const formSchema = z.object({
@@ -30,7 +33,7 @@ const formSchema = z.object({
     .regex(/^\d+$/, { message: "WhatsApp number should only contain digits." }),
 });
 
-function CreateCompany() {
+function CreateCompany({ editData }) {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,6 +43,16 @@ function CreateCompany() {
     },
   });
 
+  useEffect(() => {
+    if (editData) {
+      form.setValue("name", editData.name);
+      form.setValue("email", editData.email);
+      form.setValue("whatsappNumber", editData.whatsappNumber);
+    }
+  }, []);
+
+  const { toast } = useToast();
+
   const [createCompany, { isLoading, isError, error, data }] =
     useCreateCompanyMutation();
 
@@ -47,15 +60,31 @@ function CreateCompany() {
     createCompany(data);
   };
 
-  if (isError) {
-    alert("Error creating company");
-  }
-  if (data) {
-    alert("Company created successfully");
-  }
+  useEffect(() => {
+    if (isError) {
+      toast({
+        title: "Company creation failed",
+        description: error?.message,
+        status: "error",
+        variant: "destructive",
+      });
+    }
+  }, [isError, error, toast]);
+
+  useEffect(() => {
+    if (data) {
+      toast({
+        title: "Company created",
+        description: "Your company has been created successfully.",
+        status: "success",
+      });
+      form.reset();
+    }
+  }, [data, toast]);
+
   return (
     <>
-      <h1 className=" text-3xl font-semibold">Create Company</h1>
+      <h1 className=" text-2xl font-semibold">Create Company</h1>
       <main className="flex flex-1 flex-col items-start justify-start p-4 md:items-center md:justify-center md:p-8">
         <Form {...form}>
           <form
@@ -110,7 +139,11 @@ function CreateCompany() {
                 </FormItem>
               )}
             />
-            <Button type="submit">Submit</Button>
+            {isLoading ? (
+              <ButtonLoading />
+            ) : (
+              <Button type="submit">Submit</Button>
+            )}
           </form>
         </Form>
       </main>

@@ -9,8 +9,9 @@ import {
 } from "@/components/ui/tabs";
 import CreateCompany from "@/components/CreateCompany";
 import ViewCompany from "@/components/ViewCompany";
+import CreatePurchaseOrder from "@/components/CreatePurchaseOrder";
 
-const Company = () => {
+const PurchaseOrder = () => {
   return (
     <Layout>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -20,17 +21,17 @@ const Company = () => {
               value="createCompany"
               className="data-[state=active]:bg-white"
             >
-              Create Company
+              Create Purchase Order
             </TabsTrigger>
             <TabsTrigger
               value="viewCompany"
               className="data-[state=active]:bg-white"
             >
-              Edit/View Company
+              View Purchase Order
             </TabsTrigger>
           </TabsList>
           <TabsContent value="createCompany">
-            <CreateCompany />
+            <CreatePurchaseOrder />
           </TabsContent>
           <TabsContent value="viewCompany">
             <ViewCompany />
@@ -41,4 +42,4 @@ const Company = () => {
   );
 };
 
-export default Company;
+export default PurchaseOrder;

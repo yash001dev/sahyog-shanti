@@ -6,7 +6,11 @@ export const companyApi = createApi({
   tagTypes: ["getCompany"],
   endpoints: (builder) => ({
     getCompany: builder.query({
-      query: () => "/company",
+      query: (company) => `/company`,
+      providesTags: ["getCompany"],
+    }),
+    getParticularCompany: builder.query({
+      query: (id) => `/company/${id}`,
       providesTags: ["getCompany"],
     }),
     createCompany: builder.mutation({
@@ -17,7 +21,28 @@ export const companyApi = createApi({
       }),
       invalidatesTags: ["getCompany"],
     }),
+    editCompany: builder.mutation({
+      query: (company) => ({
+        url: `/company/${company.id}`,
+        method: "PUT",
+        body: company,
+      }),
+      invalidatesTags: ["getCompany"],
+    }),
+    deleteCompany: builder.mutation({
+      query: ({ id }) => ({
+        url: `/company`,
+        method: "DELETE",
+        body: { id },
+      }),
+      invalidatesTags: ["getCompany"],
+    }),
   }),
 });
 
-export const { useGetCompanyQuery, useCreateCompanyMutation } = companyApi;
+export const {
+  useGetCompanyQuery,
+  useCreateCompanyMutation,
+  useDeleteCompanyMutation,
+  useEditCompanyMutation,
+} = companyApi;
