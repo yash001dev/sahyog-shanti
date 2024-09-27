@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -17,6 +17,8 @@ import { PenIcon } from "lucide-react";
 import ButtonLoading from "../ui/buttonloading";
 import { set } from "lodash";
 import CreateCompany from "../CreateCompany";
+import { useDispatch } from "react-redux";
+import { hideLoader, showLoader } from "../../../store/loaderSlice";
 // import {
 //   useFetchCompanies,
 //   useDeleteCompany,
@@ -24,7 +26,7 @@ import CreateCompany from "../CreateCompany";
 // } from "@/hooks/companyHooks";
 
 const ViewCompany = () => {
-  const { data: companies, refetch } = useGetCompanyQuery();
+  const { data: companies, refetch, isLoading } = useGetCompanyQuery();
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -61,6 +63,14 @@ const ViewCompany = () => {
       toast({ title: "Failed to update company", status: "error" });
     }
   };
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (isLoading) {
+      dispatch(showLoader());
+    } else {
+      dispatch(hideLoader());
+    }
+  }, [isLoading]);
 
   if (isEditView) {
     return (

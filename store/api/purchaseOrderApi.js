@@ -4,6 +4,7 @@ import { get, update } from "lodash";
 export const purchaseOrderApi = createApi({
   reducerPath: "purchaseOrderApi",
   baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
+  tagTypes: ["purchaseOrder"],
   endpoints: (builder) => ({
     createPurchaseOrder: builder.mutation({
       query: (purchaseOrder) => ({
@@ -14,6 +15,7 @@ export const purchaseOrderApi = createApi({
     }),
     getPurchaseOrder: builder.query({
       query: () => "/purchaseOrder",
+      providesTags: ["purchaseOrder"],
     }),
     getParticularPurchaseOrder: builder.query({
       query: (id) => `/purchaseOrder/${id}`,
@@ -34,6 +36,7 @@ export const purchaseOrderApi = createApi({
         method: "PUT",
         body: purchaseOrder,
       }),
+      invalidatesTags: ["purchaseOrder"],
     }),
   }),
 });

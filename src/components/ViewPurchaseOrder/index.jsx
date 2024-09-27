@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -19,6 +19,8 @@ import {
   useGetPurchaseOrderQuery,
 } from "../../../store/api/purchaseOrderApi";
 import CreatePurchaseOrder from "../CreatePurchaseOrder";
+import { hideLoader, showLoader } from "../../../store/loaderSlice";
+import { useDispatch } from "react-redux";
 // import {
 //   useFetchCompanies,
 //   useDeleteCompany,
@@ -26,9 +28,12 @@ import CreatePurchaseOrder from "../CreatePurchaseOrder";
 // } from "@/hooks/companyHooks";
 
 const ViewPurchaseOrder = () => {
-  const { data: purchaseOrders, refetch } = useGetPurchaseOrderQuery();
+  const {
+    data: purchaseOrders,
+    refetch,
+    isLoading,
+  } = useGetPurchaseOrderQuery();
   const { toast } = useToast();
-  console.log(purchaseOrders);
   const [loadingId, setLoadingId] = useState(null);
   const [isEditView, setIsEditView] = useState(false);
   const [editingCompany, setEditingCompany] = useState(null);
@@ -43,6 +48,15 @@ const ViewPurchaseOrder = () => {
       toast({ title: "Failed to delete company", status: "error" });
     }
   };
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (isLoading) {
+      dispatch(showLoader());
+    } else {
+      dispatch(hideLoader());
+    }
+  }, [isLoading]);
 
   const handleEdit = (company) => {
     setEditingCompany(company);
