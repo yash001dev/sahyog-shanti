@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Purchase Order Confirmation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      text-align: center;
+      padding-bottom: 20px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+      color: #007BFF;
+    }
+    .content {
+      line-height: 1.6;
+    }
+    .content p {
+      margin: 0 0 10px;
+    }
+    .content .info {
+      background-color: #f9f9f9;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .footer {
+      text-align: center;
+      padding-top: 20px;
+      font-size: 14px;
+      color: #999;
+    }
+    .footer a {
+      color: #007BFF;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Purchase Order Confirmation</h1>
+    </div>
+
+    <div class="content">
+      <p>Dear <strong>{{billingName}}</strong>,</p>
+
+      <p>Thank you for your order from <strong>{{schoolName}}</strong>. We are pleased to confirm your purchase order:</p>
+
+      <div class="info">
+        <p><strong>Purchase Order No:</strong> {{purchaseOrderNo}}</p>
+        <p><strong>Publication:</strong> {{publicationName}}</p>
+        <p><strong>Status:</strong> {{status}}</p>
+        <p><strong>Created At:</strong> {{createdAt}}</p>
+        <p><strong>Updated At:</strong> {{updatedAt}}</p>
+      </div>
+
+      <h2>Books</h2>
+      <ul>
+        {{#each books}}
+        <li><strong>{{this.bookName}}</strong> (Qty: {{this.qty}}, Code: {{this.code}}, Standard: {{this.textbookStd}})</li>
+        {{/each}}
+      </ul>
+
+      <p>If you have any questions regarding your order, feel free to reach out to us.</p>
+    </div>
+
+    <div class="footer">
+      <p>Best regards,</p>
+      <p>The Sahyog Team</p>
+      <p><a href="https://popcase.in">Visit Our Website</a></p>
+    </div>
+  </div>
+</body>
+</html>

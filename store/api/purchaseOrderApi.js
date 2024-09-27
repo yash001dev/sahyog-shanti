@@ -1,20 +1,48 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { get, update } from "lodash";
 
 export const purchaseOrderApi = createApi({
-  reducerPath: "api",
+  reducerPath: "purchaseOrderApi",
   baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
   endpoints: (builder) => ({
-    // getUsers: builder.query({
-    //   query: () => "/users",
-    // }),
-    // createUser: builder.mutation({
-    //   query: (newUser) => ({
-    //     url: "/users",
-    //     method: "POST",
-    //     body: newUser,
-    //   }),
-    // }),
+    createPurchaseOrder: builder.mutation({
+      query: (purchaseOrder) => ({
+        url: "/purchaseOrder",
+        method: "POST",
+        body: purchaseOrder,
+      }),
+    }),
+    getPurchaseOrder: builder.query({
+      query: () => "/purchaseOrder",
+    }),
+    getParticularPurchaseOrder: builder.query({
+      query: (id) => `/purchaseOrder/${id}`,
+    }),
+    deletePurchaseOrder: builder.mutation({
+      query: ({ id }) => ({
+        url: `/purchaseOrder`,
+        method: "DELETE",
+        body: { id },
+      }),
+    }),
+    getPurchaseOrderByStatus: builder.query({
+      query: (status) => `/purchaseOrder?status=${status}`,
+    }),
+    updatePurchaseOrder: builder.mutation({
+      query: (purchaseOrder) => ({
+        url: `/purchaseOrder`,
+        method: "PUT",
+        body: purchaseOrder,
+      }),
+    }),
   }),
 });
 
-export const {} = purchaseOrderApi;
+export const {
+  useCreatePurchaseOrderMutation,
+  useGetPurchaseOrderQuery,
+  useGetParticularPurchaseOrderQuery,
+  useDeletePurchaseOrderMutation,
+  useGetPurchaseOrderByStatusQuery,
+  useUpdatePurchaseOrderMutation,
+} = purchaseOrderApi;

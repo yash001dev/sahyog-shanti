@@ -14,10 +14,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Layout from "@/components/Layout";
-import { useCreateCompanyMutation } from "../../../store/api/companyApi";
+import {
+  useCreateCompanyMutation,
+  useEditCompanyMutation,
+} from "../../../store/api/companyApi";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import ButtonLoading from "../ui/buttonloading";
+import { ChevronLeft } from "lucide-react";
 
 // Define the schema using Zod
 const formSchema = z.object({
@@ -33,7 +37,7 @@ const formSchema = z.object({
     .regex(/^\d+$/, { message: "WhatsApp number should only contain digits." }),
 });
 
-function CreateCompany({ editData }) {
+function CreateCompany({ companyData, handleGoBack }) {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -44,19 +48,34 @@ function CreateCompany({ editData }) {
   });
 
   useEffect(() => {
-    if (editData) {
-      form.setValue("name", editData.name);
-      form.setValue("email", editData.email);
-      form.setValue("whatsappNumber", editData.whatsappNumber);
+    if (companyData) {
+      form.setValue("name", companyData.name);
+      form.setValue("email", companyData.email);
+      form.setValue("whatsappNumber", companyData.whatsappNumber);
     }
-  }, []);
+  }, [companyData]);
 
   const { toast } = useToast();
 
   const [createCompany, { isLoading, isError, error, data }] =
     useCreateCompanyMutation();
 
+  const [
+    updateCompany,
+    {
+      isLoading: isUpdating,
+      isError: isUpdateError,
+      error: updateError,
+      data: updateData,
+    },
+  ] = useEditCompanyMutation();
+
   const onSubmit = (data) => {
+    if (companyData) {
+      updateCompany({ ...data, id: companyData.id });
+
+      return;
+    }
     createCompany(data);
   };
 
@@ -82,9 +101,47 @@ function CreateCompany({ editData }) {
     }
   }, [data, toast]);
 
+  useEffect(() => {
+    if (isUpdateError) {
+      toast({
+        title: "Company update failed",
+        description: updateError?.message,
+        status: "error",
+        variant: "destructive",
+      });
+    }
+  }, [isUpdateError, updateError, toast]);
+
+  useEffect(() => {
+    if (updateData) {
+      toast({
+        title: "Company updated",
+        description: "Your company has been updated successfully.",
+        status: "success",
+      });
+
+      form.reset();
+      handleGoBack();
+    }
+  }, [updateData, toast]);
+
   return (
     <>
-      <h1 className=" text-2xl font-semibold">Create Company</h1>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        {companyData ? (
+          <Button
+            onClick={() => handleGoBack()}
+            variant="outline"
+            size="icon"
+            className="mr-1"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+        ) : null}
+        <h1 className=" text-2xl font-semibold">
+          {companyData ? "Edit Company" : "Create Company"}
+        </h1>
+      </div>
       <main className="flex flex-1 flex-col items-start justify-start p-4 md:items-center md:justify-center md:p-8">
         <Form {...form}>
           <form
@@ -141,6 +198,8 @@ function CreateCompany({ editData }) {
             />
             {isLoading ? (
               <ButtonLoading />
+            ) : companyData ? (
+              <Button type="submit">Update</Button>
             ) : (
               <Button type="submit">Submit</Button>
             )}

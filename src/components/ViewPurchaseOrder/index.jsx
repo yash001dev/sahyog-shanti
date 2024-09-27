@@ -9,33 +9,31 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import {
-  useGetCompanyQuery,
-  useDeleteCompanyMutation,
-} from "../../../store/api/companyApi";
+
 import { PenIcon } from "lucide-react";
 import ButtonLoading from "../ui/buttonloading";
 import { set } from "lodash";
 import CreateCompany from "../CreateCompany";
+import {
+  useDeletePurchaseOrderMutation,
+  useGetPurchaseOrderQuery,
+} from "../../../store/api/purchaseOrderApi";
+import CreatePurchaseOrder from "../CreatePurchaseOrder";
 // import {
 //   useFetchCompanies,
 //   useDeleteCompany,
 //   useUpdateCompany,
 // } from "@/hooks/companyHooks";
 
-const ViewCompany = () => {
-  const { data: companies, refetch } = useGetCompanyQuery();
+const ViewPurchaseOrder = () => {
+  const { data: purchaseOrders, refetch } = useGetPurchaseOrderQuery();
   const { toast } = useToast();
-
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    whatsappNumber: "",
-  });
+  console.log(purchaseOrders);
   const [loadingId, setLoadingId] = useState(null);
   const [isEditView, setIsEditView] = useState(false);
   const [editingCompany, setEditingCompany] = useState(null);
-  const [deleteCompany, { isLoading: isDeleting }] = useDeleteCompanyMutation();
+  const [deleteCompany, { isLoading: isDeleting }] =
+    useDeletePurchaseOrderMutation();
   const handleDelete = async (id) => {
     setLoadingId(id);
     try {
@@ -64,9 +62,9 @@ const ViewCompany = () => {
 
   if (isEditView) {
     return (
-      <CreateCompany
-        companyData={editingCompany}
-        handleGoBack={() => setIsEditView(false)}
+      <CreatePurchaseOrder
+        purchaseData={editingCompany}
+        GoBack={() => setIsEditView(false)}
       />
     );
   }
@@ -74,25 +72,27 @@ const ViewCompany = () => {
   return (
     <div className="p-4 md:p-8">
       <div>
-        <h1 className="text-2xl font-semibold mb-4">View Companies</h1>
+        <h1 className="text-2xl font-semibold mb-4">View Purchase Order</h1>
       </div>
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>ID</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>WhatsApp Number</TableHead>
+            <TableHead>Publication Name</TableHead>
+            <TableHead>School Name</TableHead>
+            <TableHead>Purchase Order No</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {companies?.map((company) => (
+          {purchaseOrders?.map((company) => (
             <TableRow key={company.id}>
               <TableCell>{company.id}</TableCell>
-              <TableCell>{company.name}</TableCell>
-              <TableCell>{company.email}</TableCell>
-              <TableCell>{company.whatsappNumber}</TableCell>
+              <TableCell>{company.publicationName}</TableCell>
+              <TableCell>{company.schoolName}</TableCell>
+              <TableCell>{company.purchaseOrderNo}</TableCell>
+              <TableCell>{company.status?.toString()}</TableCell>
               <TableCell>
                 <div className="flex justify-start">
                   <Button
@@ -125,4 +125,4 @@ const ViewCompany = () => {
   );
 };
 
-export default ViewCompany;
+export default ViewPurchaseOrder;

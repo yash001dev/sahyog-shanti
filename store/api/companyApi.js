@@ -23,7 +23,7 @@ export const companyApi = createApi({
     }),
     editCompany: builder.mutation({
       query: (company) => ({
-        url: `/company/${company.id}`,
+        url: `/company`,
         method: "PUT",
         body: company,
       }),

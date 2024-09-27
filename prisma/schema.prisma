@@ -19,6 +19,8 @@ model User {
   email     String    @unique
   password  String
   companies Company[] // A user can create multiple companies
+
+  PurchaseOrder PurchaseOrder[]
 }
 
 model Company {
@@ -30,4 +32,30 @@ model Company {
   user           User     @relation(fields: [createdBy], references: [id])
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model PurchaseOrder {
+  id              Int      @id @default(autoincrement())
+  purchaseOrderNo String
+  schoolName      String
+  billingName     String
+  publicationName String
+  status          Boolean
+  createdBy       Int // Foreign key to User
+  user            User     @relation(fields: [createdBy], references: [id])
+  books           Book[] // A purchase order can have multiple books
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Book {
+  id              Int           @id @default(autoincrement())
+  textbookStd     String
+  bookName        String
+  code            String
+  qty             Int
+  purchaseOrderId Int // Foreign key to PurchaseOrder
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }

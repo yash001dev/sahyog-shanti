@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -23,11 +23,18 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 import _ from "lodash";
+import { useGetCompanyQuery } from "../../../store/api/companyApi";
+import {
+  useCreatePurchaseOrderMutation,
+  useUpdatePurchaseOrderMutation,
+} from "../../../store/api/purchaseOrderApi";
+import ButtonLoading from "../ui/buttonloading";
+import { useToast } from "@/hooks/use-toast";
 
 // Define the schema using Zod
 const formSchema = z.object({
   purchaseOrderNo: z
-    .number()
+    .string()
     .min(1, { message: "Purchase Order No is required" }),
   schoolName: z.string().min(1, { message: "School name is required" }),
   billingName: z.string().min(1, { message: "Billing name is required" }),
@@ -36,7 +43,7 @@ const formSchema = z.object({
       textbookStd: z.string().min(1, { message: "TextBook Std is required" }),
       bookName: z.string().min(1, { message: "Book name is required" }),
       code: z.string().min(1, { message: "Code is required" }),
-      qty: z.number().min(1, { message: "Qty is required" }),
+      qty: z.string().min(1, { message: "Qty is required" }),
     })
   ),
   publicationName: z
@@ -45,20 +52,30 @@ const formSchema = z.object({
   status: z.boolean(),
 });
 
-const CreatePurchaseOrder = () => {
+const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       purchaseOrderNo: "",
       schoolName: "",
       billingName: "",
-      books: [{ textbookStd: "", bookName: "", code: "", qty: 1 }],
+      books: [{ textbookStd: "", bookName: "", code: "", qty: "1" }],
       publicationName: "",
       status: false,
     },
   });
-
+  const { toast } = useToast();
   const [books, setBooks] = useState([{ id: 1 }]);
+  const { data: companies, refetch } = useGetCompanyQuery();
+  const [
+    createPurchaseOrder,
+    { isLoading: isCreating, error: createError, isSuccess: isCreated },
+  ] = useCreatePurchaseOrderMutation();
+
+  const [
+    updatePurchaseOrder,
+    { isLoading: isUpdating, error: updateError, isSuccess },
+  ] = useUpdatePurchaseOrderMutation();
 
   const addBook = () => {
     setBooks([...books, { id: books.length + 1 }]);
@@ -68,10 +85,63 @@ const CreatePurchaseOrder = () => {
     if (books.length > 1) {
       setBooks(books.filter((book) => book.id !== id));
     }
+    //Also Remove From Form
+    form.setValue(
+      "books",
+      form.getValues("books").filter((book) => book.id !== id)
+    );
   };
 
   const onSubmit = (data) => {
-    console.log(data);
+    const companyId = parseInt(data.publicationName);
+    const constructedData = {
+      ...data,
+      //Want to send the company name instead of the id
+      publicationName: companies.find(
+        (company) => company.id === parseInt(data.publicationName)
+      )?.name,
+      companyId,
+    };
+    if (purchaseData) {
+      updatePurchaseOrder({ ...constructedData, id: purchaseData.id }).then(
+        (res) => {
+          if (res.error) {
+            toast({
+              title: "Purchase Order update failed",
+              description: res.error?.message,
+              status: "error",
+              variant: "destructive",
+            });
+          }
+          if (res.data) {
+            toast({
+              title: "Purchase Order updated",
+              status: "success",
+            });
+            GoBack();
+          }
+        }
+      );
+      return;
+    }
+    createPurchaseOrder(constructedData).then((res) => {
+      if (res.error) {
+        toast({
+          title: "Purchase Order creation failed",
+          description: res.error?.message,
+          status: "error",
+          variant: "destructive",
+        });
+      }
+      if (res.data) {
+        toast({
+          title: "Purchase Order created",
+          status: "success",
+        });
+        setBooks([{ id: 1 }]);
+        form.reset();
+      }
+    });
   };
 
   const standard1to12 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((std) => (
@@ -80,9 +150,42 @@ const CreatePurchaseOrder = () => {
     </SelectItem>
   ));
 
+  useEffect(() => {
+    if (purchaseData) {
+      console.log("purchaseData", purchaseData);
+      form.setValue("purchaseOrderNo", purchaseData.purchaseOrderNo);
+      form.setValue("schoolName", purchaseData.schoolName);
+      form.setValue("billingName", purchaseData.billingName);
+      // form.setValue("publicationName", );
+      form.setValue("status", purchaseData.status);
+      setBooks(
+        purchaseData.books.map((book, index) => ({ ...book, id: index + 1 }))
+      );
+      form.setValue(
+        "books",
+        purchaseData.books?.map((book) => ({
+          ...book,
+          textbookStd: book.textbookStd.toString(),
+        }))
+      );
+    }
+  }, [purchaseData]);
+
+  useEffect(() => {
+    //If company and purchase data available then set publication name from company
+    if (companies && purchaseData) {
+      const companyId = companies.find(
+        (company) => company.name === purchaseData.publicationName
+      )?.id;
+      form.setValue("publicationName", companyId.toString());
+    }
+  }, [companies, purchaseData]);
+
   return (
     <>
-      <h1 className="text-2xl font-semibold">Create Purchase Order</h1>
+      <h1 className="text-2xl font-semibold">
+        {purchaseData ? "Edit Purchase Order" : "Create Purchase Order"}
+      </h1>
       <main className="flex flex-1 flex-col items-start justify-start p-4 md:items-center md:justify-center md:p-8">
         <Form {...form}>
           <form
@@ -149,6 +252,7 @@ const CreatePurchaseOrder = () => {
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
+                        {...field}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -157,10 +261,10 @@ const CreatePurchaseOrder = () => {
                         </FormControl>
                         <SelectContent>{standard1to12}</SelectContent>
                       </Select>
-                      <FormDescription>
+                      {/* <FormDescription>
                         You can manage email addresses in your{" "}
                         <Link href="/examples/forms">email settings</Link>.
-                      </FormDescription>
+                      </FormDescription> */}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -221,26 +325,26 @@ const CreatePurchaseOrder = () => {
                 name="publicationName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Select a Company</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
+                      {...field}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a verified email to display" />
+                          <SelectValue placeholder="Select a Company" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="m@example.com">
-                          m@example.com
-                        </SelectItem>
-                        <SelectItem value="m@google.com">
-                          m@google.com
-                        </SelectItem>
-                        <SelectItem value="m@support.com">
-                          m@support.com
-                        </SelectItem>
+                        {companies?.map((company) => (
+                          <SelectItem
+                            key={company.id}
+                            value={company.id.toString()}
+                          >
+                            {company.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormDescription>
@@ -258,14 +362,20 @@ const CreatePurchaseOrder = () => {
                   <FormItem>
                     <FormLabel>Status</FormLabel>
                     <FormControl>
-                      <Checkbox {...field} />
+                      <Checkbox {...field} className="ml-2" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-            <Button type="submit">Submit</Button>
+            {isCreating || isUpdating ? (
+              <ButtonLoading />
+            ) : purchaseData ? (
+              <Button type="submit">Update</Button>
+            ) : (
+              <Button type="submit">Submit</Button>
+            )}
           </form>
         </Form>
       </main>

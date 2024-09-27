@@ -7,9 +7,8 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/components/ui/tabs";
-import CreateCompany from "@/components/CreateCompany";
-import ViewCompany from "@/components/ViewCompany";
 import CreatePurchaseOrder from "@/components/CreatePurchaseOrder";
+import ViewPurchaseOrder from "@/components/ViewPurchaseOrder";
 
 const PurchaseOrder = () => {
   return (
@@ -34,7 +33,7 @@ const PurchaseOrder = () => {
             <CreatePurchaseOrder />
           </TabsContent>
           <TabsContent value="viewCompany">
-            <ViewCompany />
+            <ViewPurchaseOrder />
           </TabsContent>
         </Tabs>
       </main>

@@ -10,13 +10,13 @@ const store = configureStore({
     user: userReducer,
     [createUser.reducerPath]: createUser.reducer,
     [companyApi.reducerPath]: companyApi.reducer,
-    // [purchaseOrderApi.reducerPath]: purchaseOrderApi.reducer,
+    [purchaseOrderApi.reducerPath]: purchaseOrderApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(createUser.middleware)
-      .concat(companyApi.middleware),
-  // .concat(purchaseOrderApi.middleware),
+      .concat(companyApi.middleware)
+      .concat(purchaseOrderApi.middleware),
 });
 
 export default store;
