@@ -87,12 +87,22 @@ export default function Dashboard({ activeState = "/dashboard", children }) {
             Purchase Order
           </Link>
           <Link
+            className="text-muted-foreground transition-colors hover:text-foreground"
+            style={{
+              color: highlightActiveLink("/dashboard/shipping-address"),
+            }}
+            href={"/dashboard/shipping-address"}
+          >
+            Shipping Address
+          </Link>
+          <Link
             href="#"
             className="text-muted-foreground transition-colors hover:text-foreground"
             style={{ color: highlightActiveLink("/customers") }}
           >
             Customers
           </Link>
+
           <Link
             href="#"
             className="text-muted-foreground transition-colors hover:text-foreground"

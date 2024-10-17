@@ -30,6 +30,8 @@ import {
 } from "../../../store/api/purchaseOrderApi";
 import ButtonLoading from "../ui/buttonloading";
 import { useToast } from "@/hooks/use-toast";
+import { Agencies } from "@/utils/constants";
+import { useGetShippingAddressesQuery } from "../../../store/api/createShippingAddressApi";
 
 // Define the schema using Zod
 const formSchema = z.object({
@@ -50,6 +52,9 @@ const formSchema = z.object({
     .string()
     .min(1, { message: "Publication name is required" }),
   status: z.boolean(),
+  shippingAddress: z
+    .string()
+    .min(1, { message: "Shipping address is required" }),
 });
 
 const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
@@ -62,6 +67,7 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
       books: [{ textbookStd: "", bookName: "", code: "", qty: "1" }],
       publicationName: "",
       status: false,
+      shippingAddress: "",
     },
   });
   const { toast } = useToast();
@@ -80,6 +86,12 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
   const addBook = () => {
     setBooks([...books, { id: books.length + 1 }]);
   };
+
+  const {
+    data: companiesAddress,
+    refetch: refetchShippingAddress,
+    isLoading: isShippingAddressLoading,
+  } = useGetShippingAddressesQuery();
 
   const deleteBook = (id) => {
     if (books.length > 1) {
@@ -101,6 +113,7 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
         (company) => company.id === parseInt(data.publicationName)
       )?.name,
       companyId,
+      shippingAddressId: parseInt(data.shippingAddress),
     };
     if (purchaseData) {
       updatePurchaseOrder({ ...constructedData, id: purchaseData.id }).then(
@@ -168,6 +181,10 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
           textbookStd: book.textbookStd.toString(),
         }))
       );
+      form.setValue(
+        "shippingAddress",
+        purchaseData.shippingAddressId.toString()
+      );
     }
   }, [purchaseData]);
 
@@ -230,7 +247,24 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
                   <FormItem>
                     <FormLabel>Billing Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Billing Name" {...field} />
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        {...field}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a Billing Name" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Agencies.map((agency) => (
+                            <SelectItem key={_.uniqueId()} value={agency}>
+                              {agency}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -355,6 +389,39 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="shippingAddress"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Select a Shipping Address</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      {...field}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a Shipping Address" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {companiesAddress?.map((address) => (
+                          <SelectItem
+                            key={address.id}
+                            value={address.id.toString()}
+                          >
+                            {address.address}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="status"

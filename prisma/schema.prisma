@@ -20,7 +20,8 @@ model User {
   password  String
   companies Company[] // A user can create multiple companies
 
-  PurchaseOrder PurchaseOrder[]
+  PurchaseOrder   PurchaseOrder[]
+  ShippingAddress ShippingAddress[]
 }
 
 model Company {
@@ -35,17 +36,19 @@ model Company {
 }
 
 model PurchaseOrder {
-  id              Int      @id @default(autoincrement())
-  purchaseOrderNo String
-  schoolName      String
-  billingName     String
-  publicationName String
-  status          Boolean
-  createdBy       Int // Foreign key to User
-  user            User     @relation(fields: [createdBy], references: [id])
-  books           Book[] // A purchase order can have multiple books
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                Int             @id @default(autoincrement())
+  purchaseOrderNo   String
+  schoolName        String
+  billingName       String
+  publicationName   String
+  status            Boolean
+  createdBy         Int // Foreign key to User
+  user              User            @relation(fields: [createdBy], references: [id])
+  books             Book[] // A purchase order can have multiple books
+  shippingAddressId Int // Foreign key to ShippingAddress
+  shippingAddress   ShippingAddress @relation(fields: [shippingAddressId], references: [id])
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
 }
 
 model Book {
@@ -58,4 +61,15 @@ model Book {
   purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+}
+
+//Create Shipping Address model
+model ShippingAddress {
+  id            Int             @id @default(autoincrement())
+  address       String
+  createdBy     Int // Foreign key to User
+  user          User            @relation(fields: [createdBy], references: [id])
+  purchaseOrder PurchaseOrder[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 }

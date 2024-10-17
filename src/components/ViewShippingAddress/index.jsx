@@ -1,34 +1,28 @@
 import React, { useEffect, useState } from "react";
 import Fuse from "fuse.js";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import {
-  useGetCompanyQuery,
-  useDeleteCompanyMutation,
-} from "../../../store/api/companyApi";
+  useGetShippingAddressesQuery,
+  useDeleteShippingAddressMutation,
+} from "../../../store/api/createShippingAddressApi";
 import { PenIcon } from "lucide-react";
 import ButtonLoading from "../ui/buttonloading";
 import { set } from "lodash";
-import CreateCompany from "../CreateCompany";
+import CreateShippingAddress from "../CreateShippingAddress";
 import { useDispatch } from "react-redux";
 import { hideLoader, showLoader } from "../../../store/loaderSlice";
-// import {
-//   useFetchCompanies,
-//   useDeleteCompany,
-//   useUpdateCompany,
-// } from "@/hooks/companyHooks";
+import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 
-const ViewCompany = () => {
-  const { data: companies, refetch, isLoading } = useGetCompanyQuery();
+const ViewShippingAddress = () => {
+  const {
+    data: companiesAddress,
+    refetch,
+    isLoading,
+  } = useGetShippingAddressesQuery();
   const { toast } = useToast();
+  
 
   const [formData, setFormData] = useState({
     name: "",
@@ -41,11 +35,12 @@ const ViewCompany = () => {
   const [editingCompany, setEditingCompany] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  const [deleteCompany, { isLoading: isDeleting }] = useDeleteCompanyMutation();
+  const [deleteCompanyAddress, { isLoading: isDeleting }] =
+    useDeleteShippingAddressMutation();
   const handleDelete = async (id) => {
     setLoadingId(id);
     try {
-      await deleteCompany({ id });
+      await deleteCompanyAddress({ id });
       toast({ title: "Company deleted", status: "success" });
     } catch (error) {
       toast({ title: "Failed to delete company", status: "error" });
@@ -76,13 +71,13 @@ const ViewCompany = () => {
     }
   }, [isLoading]);
 
-  const fuse = new Fuse(companies || [], {
+  const fuse = new Fuse(companiesAddress || [], {
     keys: ["name", "email", "whatsappNumber"],
   });
 
   const filteredCompanies = searchQuery
     ? fuse.search(searchQuery).map((result) => result.item)
-    : companies;
+    : companiesAddress;
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -99,7 +94,7 @@ const ViewCompany = () => {
 
   if (isEditView) {
     return (
-      <CreateCompany
+      <CreateShippingAddress
         companyData={editingCompany}
         handleGoBack={() => setIsEditView(false)}
       />
@@ -109,16 +104,55 @@ const ViewCompany = () => {
   return (
     <div className="p-4 md:p-8">
       <div>
-        <h1 className="text-2xl font-semibold mb-4">View Companies</h1>
-        <input
-          type="text"
-          placeholder="Search..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="mb-4 p-2 border border-gray-300 rounded"
-        />
+        <h1 className="text-2xl font-semibold mb-4">View Shipping Address</h1>
       </div>
-      <Table>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {companiesAddress?.map((company) => (
+          <Card key={company.id}>
+            <CardHeader>
+              <h2 className="text-xl font-semibold">
+                Address ID: {company.id}
+              </h2>
+            </CardHeader>
+            <CardContent>
+              <p>Company Address:{company.address}</p>
+              <p>Created At: {new Date(company.createdAt).toLocaleString()}</p>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => handleEdit(company)}
+              >
+                <PenIcon className="h-4 w-4" />
+              </Button>
+              {loadingId === company.id && isDeleting ? (
+                <ButtonLoading />
+              ) : (
+                <Button
+                  variant="destructive"
+                  onClick={() => handleDelete(company.id)}
+                >
+                  Delete
+                </Button>
+              )}
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+      <div className="flex justify-center mt-4">
+        {Array.from({ length: totalPages }, (_, index) => (
+          <Button
+            key={index + 1}
+            onClick={() => handlePageChange(index + 1)}
+            variant={currentPage === index + 1 ? "primary" : "outline"}
+            className="mx-1"
+          >
+            {index + 1}
+          </Button>
+        ))}
+      </div>
+      {/* <Table>
         <TableHeader>
           <TableRow>
             <TableHead>ID</TableHead>
@@ -174,9 +208,9 @@ const ViewCompany = () => {
             {index + 1}
           </Button>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 };
 
-export default ViewCompany;
+export default ViewShippingAddress;

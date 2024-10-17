@@ -17,6 +17,7 @@ export default async function handler(req, res) {
       status,
       createdBy,
       companyId,
+      shippingAddressId,
     } = req.body;
     //Traverse Through Books and convert quantity to integer
     books.forEach((book) => {
@@ -35,6 +36,7 @@ export default async function handler(req, res) {
           books: {
             create: books,
           },
+          shippingAddressId: shippingAddressId,
         },
       });
 
