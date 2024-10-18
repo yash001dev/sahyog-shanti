@@ -12,6 +12,7 @@ export const purchaseOrderApi = createApi({
         method: "POST",
         body: purchaseOrder,
       }),
+      invalidatesTags: ["purchaseOrder"],
     }),
     getPurchaseOrder: builder.query({
       query: () => "/purchaseOrder",
