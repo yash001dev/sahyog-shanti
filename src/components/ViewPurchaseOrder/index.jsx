@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
-import { MoreHorizontal, PenIcon } from "lucide-react";
+import { ChevronDown, MoreHorizontal, PenIcon } from "lucide-react";
 import ButtonLoading from "../ui/buttonloading";
 import { set } from "lodash";
 import CreateCompany from "../CreateCompany";
@@ -28,9 +28,11 @@ import {
   useReactTable,
   getSortedRowModel,
   flexRender,
+  getFilteredRowModel,
 } from "@tanstack/react-table";
 import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
 import {
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -38,6 +40,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import CustomizedAlertDialog from "../AlertDialog";
+import { Input } from "../ui/input";
 // import {
 //   useFetchCompanies,
 //   useDeleteCompany,
@@ -137,7 +140,6 @@ const ViewPurchaseOrder = () => {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        console.log("row:", row);
         return <div>{row.getValue("status")?.toString()}</div>;
       },
     },
@@ -174,8 +176,9 @@ const ViewPurchaseOrder = () => {
                 Delete
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>View customer</DropdownMenuItem>
-              <DropdownMenuItem>View payment details</DropdownMenuItem>
+              <DropdownMenuItem>Mark as Draft</DropdownMenuItem>
+              <DropdownMenuItem>Mark as In-Transit</DropdownMenuItem>
+              <DropdownMenuItem>Mark as Delivered</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -190,6 +193,7 @@ const ViewPurchaseOrder = () => {
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
@@ -224,6 +228,43 @@ const ViewPurchaseOrder = () => {
         isLoading={isDeleting}
       />
       <div className="w-full">
+        <div className="flex items-center py-4">
+          <Input
+            placeholder="Search"
+            value={table.getColumn("schoolName")?.getFilterValue() ?? ""}
+            onChange={(event) => {
+              console.log(event.target.value);
+              table.getColumn("schoolName")?.setFilterValue(event.target.value);
+            }}
+          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {/* {column.id} */}
+                      {column.columnDef.header}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <div className="rounded-md border">
           <Table>
             <TableHeader>
@@ -273,6 +314,30 @@ const ViewPurchaseOrder = () => {
               )}
             </TableBody>
           </Table>
+        </div>
+        <div className="flex items-center justify-end space-x-2 py-4">
+          <div className="flex-1 text-sm text-muted-foreground">
+            {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {table.getFilteredRowModel().rows.length} row(s) selected.
+          </div>
+          <div className="space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </div>
     </>
