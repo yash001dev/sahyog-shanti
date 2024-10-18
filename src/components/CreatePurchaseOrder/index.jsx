@@ -26,6 +26,8 @@ import _ from "lodash";
 import { useGetCompanyQuery } from "../../../store/api/companyApi";
 import {
   useCreatePurchaseOrderMutation,
+  useGetPONumberQuery,
+  useLazyGetPONumberQuery,
   useUpdatePurchaseOrderMutation,
 } from "../../../store/api/purchaseOrderApi";
 import ButtonLoading from "../ui/buttonloading";
@@ -44,7 +46,9 @@ const formSchema = z.object({
     z.object({
       textbookStd: z.string().min(1, { message: "TextBook Std is required" }),
       bookName: z.string().min(1, { message: "Book name is required" }),
-      code: z.string().min(1, { message: "Code is required" }),
+      // code: z.string().min(1, { message: "Code is required" }),
+      //Make code optional
+      code: z.string().optional(),
       qty: z.string().min(1, { message: "Qty is required" }),
     })
   ),
@@ -92,6 +96,11 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
     refetch: refetchShippingAddress,
     isLoading: isShippingAddressLoading,
   } = useGetShippingAddressesQuery();
+
+  const [
+    purchaseOrderNumber,
+    { isLoading: isPONumberLoading, data: orderNumber },
+  ] = useLazyGetPONumberQuery();
 
   const deleteBook = (id) => {
     if (books.length > 1) {
@@ -157,7 +166,22 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
     });
   };
 
-  const standard1to12 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((std) => (
+  const standard1to12 = [
+    "Jr Kg",
+    "Sr Kg",
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+  ].map((std) => (
     <SelectItem key={_.uniqueId()} value={std.toString()}>
       {std}
     </SelectItem>
@@ -179,6 +203,7 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
         purchaseData.books?.map((book) => ({
           ...book,
           textbookStd: book.textbookStd.toString(),
+          qty: book.qty.toString(),
         }))
       );
       form.setValue(
@@ -197,6 +222,17 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
       form.setValue("publicationName", companyId.toString());
     }
   }, [companies, purchaseData]);
+  useEffect(() => {
+    if (!purchaseData) {
+      purchaseOrderNumber();
+    }
+  }, [purchaseData]);
+
+  useEffect(() => {
+    if (orderNumber?.purchaseOrderNo) {
+      form.setValue("purchaseOrderNo", orderNumber?.purchaseOrderNo);
+    }
+  }, [orderNumber]);
 
   return (
     <>
@@ -217,7 +253,7 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
                   <FormLabel>Purchase Order No</FormLabel>
                   <FormControl>
                     <Input
-                      type="number"
+                      disabled={purchaseData}
                       placeholder="Purchase Order No"
                       {...field}
                     />

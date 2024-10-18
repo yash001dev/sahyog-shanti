@@ -13,6 +13,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Status {
+  Draft
+  InTransit
+  Delivered
+}
+
 model User {
   id        Int       @id @default(autoincrement())
   name      String
@@ -49,16 +55,17 @@ model PurchaseOrder {
   shippingAddress   ShippingAddress @relation(fields: [shippingAddressId], references: [id])
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
+  currentStatus     Status          @default(Draft)
 }
 
 model Book {
   id              Int           @id @default(autoincrement())
   textbookStd     String
   bookName        String
-  code            String
+  code            String?
   qty             Int
   purchaseOrderId Int // Foreign key to PurchaseOrder
-  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 }

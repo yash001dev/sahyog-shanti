@@ -26,6 +26,7 @@ export const purchaseOrderApi = createApi({
         method: "DELETE",
         body: { id },
       }),
+      invalidatesTags: ["purchaseOrder"],
     }),
     getPurchaseOrderByStatus: builder.query({
       query: (status) => `/purchaseOrder?status=${status}`,
@@ -38,6 +39,9 @@ export const purchaseOrderApi = createApi({
       }),
       invalidatesTags: ["purchaseOrder"],
     }),
+    getPONumber: builder.query({
+      query: () => "/get-purchaseOrder-number",
+    }),
   }),
 });
 
@@ -48,4 +52,6 @@ export const {
   useDeletePurchaseOrderMutation,
   useGetPurchaseOrderByStatusQuery,
   useUpdatePurchaseOrderMutation,
+  useGetPONumberQuery,
+  useLazyGetPONumberQuery,
 } = purchaseOrderApi;
