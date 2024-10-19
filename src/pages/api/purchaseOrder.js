@@ -40,6 +40,11 @@ export default async function handler(req, res) {
         },
       });
 
+      //Also get Shipping Address
+      const shippingAddress = await prisma.shippingAddress.findUnique({
+        where: { id: shippingAddressId },
+      });
+
       if (!status) {
         //Send an email to the company
         const companyEmail = await prisma.company.findUnique({
@@ -50,6 +55,7 @@ export default async function handler(req, res) {
           await sendEmail(companyEmail.email, {
             ...req.body,
             ...purchaseOrder,
+            shippingAddress: shippingAddress.address,
           });
         }
       }

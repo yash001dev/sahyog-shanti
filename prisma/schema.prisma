@@ -56,6 +56,9 @@ model PurchaseOrder {
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
   currentStatus     Status          @default(Draft)
+  //Add a new field vendorName but make it optional
+  vendorName        String? // Optional
+  vendorInvoice     Boolean         @default(false)
 }
 
 model Book {

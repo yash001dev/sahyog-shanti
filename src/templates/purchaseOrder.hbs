@@ -12,7 +12,11 @@
       #007BFF; } .content { line-height: 1.6; } .content p { margin: 0 0 10px; }
       .content .info { background-color: #f9f9f9; padding: 10px; border-radius:
       5px; } .footer { text-align: center; padding-top: 20px; font-size: 14px;
-      color: #999; } .footer a { color: #007BFF; text-decoration: none; }
+      color: #999; } .footer a { color: #007BFF; text-decoration: none; } table
+      { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 18px;
+      text-align: left; } th, td { padding: 12px; border-bottom: 1px solid #ddd;
+      } th { background-color: #f2f2f2; } tr:hover { background-color: #f5f5f5;
+      }
     </style>
   </head>
   <body>
@@ -22,29 +26,46 @@
       </div>
 
       <div class="content">
-        <p>Dear <strong>{{billingName}}</strong>,</p>
+        <p>Dear <strong>{{publicationName}}</strong>,</p>
 
-        <p>Thank you for your order from
-          <strong>{{schoolName}}</strong>. We are pleased to confirm your
-          purchase order:</p>
+        <p>
+
+          I hope this message finds you well. Kindly arrange for the dispatch of
+          the below-mentioned purchase order at your
+          <strong>earliest convenience.</strong></p>
 
         <div class="info">
           <p><strong>Purchase Order No:</strong> {{purchaseOrderNo}}</p>
-          <p><strong>Publication:</strong> {{publicationName}}</p>
+          <p><strong>School Name:</strong> {{billingName}}</p>
           <p><strong>Created At:</strong> {{createdAt}}</p>
           <p><strong>Updated At:</strong> {{updatedAt}}</p>
         </div>
 
         <h2>Books</h2>
-        <ul>
-          {{#each books}}
-            <li><strong>{{this.bookName}}</strong>
-              (Qty:
-              {{this.qty}}, Code:
-              {{this.code}}, Standard:
-              {{this.textbookStd}})</li>
-          {{/each}}
-        </ul>
+        <table>
+          <thead>
+            <tr>
+              <th>Book Name</th>
+              <th>Quantity</th>
+              <th>Code</th>
+              <th>Standard</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each books}}
+              <tr>
+                <td><strong>{{this.bookName}}</strong></td>
+                <td>{{this.qty}}</td>
+                <td>{{this.code}}</td>
+                <td>{{this.textbookStd}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+
+        <div class="info">
+          <p><strong>Ship to:</strong> {{shippingAddress}}</p>
+        </div>
 
         <p>If you have any questions regarding your order, feel free to reach
           out to us.</p>
