@@ -43,6 +43,14 @@ export const purchaseOrderApi = createApi({
     getPONumber: builder.query({
       query: () => "/get-purchaseOrder-number",
     }),
+    updatePurchaseOrderStatus: builder.mutation({
+      query: ({ ids, status }) => ({
+        url: "/update-purchase-status",
+        method: "PUT",
+        body: { ids, status },
+      }),
+      invalidatesTags: ["purchaseOrder"],
+    }),
   }),
 });
 
@@ -55,4 +63,5 @@ export const {
   useUpdatePurchaseOrderMutation,
   useGetPONumberQuery,
   useLazyGetPONumberQuery,
+  useUpdatePurchaseOrderStatusMutation,
 } = purchaseOrderApi;

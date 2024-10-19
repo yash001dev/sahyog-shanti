@@ -17,6 +17,7 @@ import CreateCompany from "../CreateCompany";
 import {
   useDeletePurchaseOrderMutation,
   useGetPurchaseOrderQuery,
+  useUpdatePurchaseOrderStatusMutation,
 } from "../../../store/api/purchaseOrderApi";
 import CreatePurchaseOrder from "../CreatePurchaseOrder";
 import { hideLoader, showLoader } from "../../../store/loaderSlice";
@@ -52,6 +53,9 @@ const ViewPurchaseOrder = () => {
   const [columnFilters, setColumnFilters] = React.useState([]);
   const [columnVisibility, setColumnVisibility] = React.useState({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [currentStatus, setCurrentStatus] = useState("");
+  const [updateStatus, { isLoading: isUpdating, isSuccess: isUpdateSuccess }] =
+    useUpdatePurchaseOrderStatusMutation();
   const {
     data: purchaseOrders,
     refetch,
@@ -69,12 +73,18 @@ const ViewPurchaseOrder = () => {
   const { toast } = useToast();
   const dispatch = useDispatch();
   useEffect(() => {
-    if (isLoading) {
+    if (isLoading || isUpdating) {
       dispatch(showLoader());
     } else {
       dispatch(hideLoader());
     }
-  }, [isLoading]);
+  }, [isLoading, isUpdating]);
+
+  useEffect(() => {
+    if (isUpdateSuccess) {
+      toast({ title: "Status updated", status: "success" });
+    }
+  }, [isUpdateSuccess]);
 
   const handleDelete = async (id) => {
     setLoadingId(id);
@@ -90,6 +100,18 @@ const ViewPurchaseOrder = () => {
   const handleEdit = (company) => {
     setEditingCompany(company);
     setIsEditView(true);
+  };
+
+  const bulkStatusUpdate = async (status) => {
+    const ids = table.getSelectedRowModel().rows.map((row) => {
+      return parseInt(row.original.id);
+    });
+
+    if (!ids.length) {
+      toast({ title: "No rows selected", status: "error" });
+      return;
+    }
+    updateStatus({ ids, status });
   };
 
   const columns = [
@@ -137,10 +159,10 @@ const ViewPurchaseOrder = () => {
       ),
     },
     {
-      accessorKey: "status",
-      header: "Status",
+      accessorKey: "currentStatus",
+      header: "Current Status",
       cell: ({ row }) => {
-        return <div>{row.getValue("status")?.toString()}</div>;
+        return <div>{row.getValue("currentStatus")}</div>;
       },
     },
     {
@@ -176,9 +198,27 @@ const ViewPurchaseOrder = () => {
                 Delete
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Mark as Draft</DropdownMenuItem>
-              <DropdownMenuItem>Mark as In-Transit</DropdownMenuItem>
-              <DropdownMenuItem>Mark as Delivered</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  bulkStatusUpdate("Draft");
+                }}
+              >
+                Mark as Draft
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  bulkStatusUpdate("InTransit");
+                }}
+              >
+                Mark as In-Transit
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  bulkStatusUpdate("Delivered");
+                }}
+              >
+                Mark as Delivered
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -214,6 +254,12 @@ const ViewPurchaseOrder = () => {
     );
   }
 
+  const handleStatusChange = async (status) => {
+    //We need to show row which have current status as status
+    setCurrentStatus(status);
+    table.getColumn("currentStatus")?.setFilterValue(status);
+  };
+
   return (
     <>
       <CustomizedAlertDialog
@@ -228,42 +274,87 @@ const ViewPurchaseOrder = () => {
         isLoading={isDeleting}
       />
       <div className="w-full">
-        <div className="flex items-center py-4">
+        <div className="flex flex-col md:flex-row items-center py-4 space-y-4 md:space-y-0 md:space-x-4">
           <Input
-            placeholder="Search"
-            value={table.getColumn("schoolName")?.getFilterValue() ?? ""}
+            placeholder="Enter Purchase Order No"
+            value={table.getColumn("purchaseOrderNo")?.getFilterValue() ?? ""}
             onChange={(event) => {
               console.log(event.target.value);
-              table.getColumn("schoolName")?.setFilterValue(event.target.value);
+              table
+                .getColumn("purchaseOrderNo")
+                ?.setFilterValue(event.target.value);
             }}
+            className="max-w-sm"
           />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Columns <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {/* {column.id} */}
-                      {column.columnDef.header}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="ml-auto">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="mr-2">
+                  Columns <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="ml-2">
+                {table
+                  .getAllColumns()
+                  .filter((column) => column.getCanHide())
+                  .map((column) => {
+                    return (
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={(value) =>
+                          column.toggleVisibility(!!value)
+                        }
+                      >
+                        {/* {column.id} */}
+                        {column.columnDef.header}
+                      </DropdownMenuCheckboxItem>
+                    );
+                  })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="ml-auto">
+                  Current Status <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  //Highlight the selected status
+                  className={
+                    currentStatus === "Draft"
+                      ? "bg-primary-foreground text-primary-background"
+                      : ""
+                  }
+                  onSelect={() => handleStatusChange("Draft")}
+                >
+                  Draft
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className={
+                    currentStatus === "Intransit"
+                      ? "bg-primary-foreground text-primary-background"
+                      : ""
+                  }
+                  onSelect={() => handleStatusChange("Intransit")}
+                >
+                  In-transit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className={
+                    currentStatus === "Delivered"
+                      ? "bg-primary-foreground text-primary-background"
+                      : ""
+                  }
+                  onSelect={() => handleStatusChange("Delivered")}
+                >
+                  Delivered
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
         <div className="rounded-md border">
           <Table>
