@@ -200,6 +200,13 @@ const ViewPurchaseOrder = () => {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => {
+                  bulkStatusUpdate("Approved");
+                }}
+              >
+                Mark as Approved
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
                   bulkStatusUpdate("Draft");
                 }}
               >
@@ -279,7 +286,6 @@ const ViewPurchaseOrder = () => {
             placeholder="Enter Purchase Order No"
             value={table.getColumn("purchaseOrderNo")?.getFilterValue() ?? ""}
             onChange={(event) => {
-              console.log(event.target.value);
               table
                 .getColumn("purchaseOrderNo")
                 ?.setFilterValue(event.target.value);
@@ -331,6 +337,16 @@ const ViewPurchaseOrder = () => {
                   onSelect={() => handleStatusChange("Draft")}
                 >
                   Draft
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className={
+                    currentStatus === "Approved"
+                      ? "bg-primary-foreground text-primary-background"
+                      : ""
+                  }
+                  onSelect={() => handleStatusChange("Approved")}
+                >
+                  Approved
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className={

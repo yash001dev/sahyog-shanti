@@ -18,11 +18,14 @@ export default async function handler(req, res) {
       createdBy,
       companyId,
       shippingAddressId,
+      vendorName,
+      vendorInvoice,
     } = req.body;
     //Traverse Through Books and convert quantity to integer
     books.forEach((book) => {
       book.qty = parseInt(book.qty);
     });
+
     try {
       // Create the purchase order
       const purchaseOrder = await prisma.purchaseOrder.create({
@@ -37,6 +40,9 @@ export default async function handler(req, res) {
             create: books,
           },
           shippingAddressId: shippingAddressId,
+          vendorName,
+          vendorInvoice,
+          companyId,
         },
       });
 
@@ -45,20 +51,20 @@ export default async function handler(req, res) {
         where: { id: shippingAddressId },
       });
 
-      if (!status) {
-        //Send an email to the company
-        const companyEmail = await prisma.company.findUnique({
-          where: { id: companyId },
-          select: { email: true },
-        });
-        if (companyEmail) {
-          await sendEmail(companyEmail.email, {
-            ...req.body,
-            ...purchaseOrder,
-            shippingAddress: shippingAddress.address,
-          });
-        }
-      }
+      // if (!status) {
+      //   //Send an email to the company
+      //   const companyEmail = await prisma.company.findUnique({
+      //     where: { id: companyId },
+      //     select: { email: true },
+      //   });
+      //   if (companyEmail) {
+      //     await sendEmail(companyEmail.email, {
+      //       ...req.body,
+      //       ...purchaseOrder,
+      //       shippingAddress: shippingAddress.address,
+      //     });
+      //   }
+      // }
 
       res.status(201).json(purchaseOrder);
     } catch (error) {
@@ -92,7 +98,6 @@ export default async function handler(req, res) {
     res.status(200).json(purchaseOrders);
   } else if (req.method === "DELETE") {
     const { id } = req.body;
-    console.log("deleting", id);
     try {
       await prisma.purchaseOrder.delete({
         where: { id: parseInt(id) },
@@ -113,8 +118,10 @@ export default async function handler(req, res) {
       publicationName,
       status,
       companyId,
+      shippingAddressId,
+      vendorName,
+      vendorInvoice,
     } = req.body;
-    console.log("id:", id);
     //Traverse Through Books and convert quantity to integer
     books.forEach((book) => {
       book.qty = parseInt(book.qty);
@@ -129,13 +136,15 @@ export default async function handler(req, res) {
           billingName,
           publicationName,
           status,
+          shippingAddressId: shippingAddressId,
+          vendorName,
+          vendorInvoice,
           books: {
             deleteMany: {},
             create: books,
           },
         },
       });
-      console.log("purchaseOrder", purchaseOrder);
 
       if (!status) {
         //Send an email to the company
@@ -161,8 +170,7 @@ export default async function handler(req, res) {
   }
 }
 
-async function sendEmail(to, purchaseOrder) {
-  console.log("sending email to", process.env.EMAIL_USER);
+export async function sendEmail(to, purchaseOrder) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     host: "smtp.gmail.com",

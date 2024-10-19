@@ -59,6 +59,9 @@ const formSchema = z.object({
   shippingAddress: z
     .string()
     .min(1, { message: "Shipping address is required" }),
+  //Vendor name is optional
+  vendorName: z.string().optional(),
+  vendorInvoice: z.boolean().optional(),
 });
 
 const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
@@ -72,6 +75,8 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
       publicationName: "",
       status: false,
       shippingAddress: "",
+      vendorName: "",
+      vendorInvoice: false,
     },
   });
   const { toast } = useToast();
@@ -189,7 +194,6 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
 
   useEffect(() => {
     if (purchaseData) {
-      console.log("purchaseData", purchaseData);
       form.setValue("purchaseOrderNo", purchaseData.purchaseOrderNo);
       form.setValue("schoolName", purchaseData.schoolName);
       form.setValue("billingName", purchaseData.billingName);
@@ -210,6 +214,8 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
         "shippingAddress",
         purchaseData.shippingAddressId.toString()
       );
+      form.setValue("vendorName", purchaseData.vendorName);
+      form.setValue("vendorInvoice", purchaseData.vendorInvoice);
     }
   }, [purchaseData]);
 
@@ -457,6 +463,46 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
                 )}
               />
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="vendorName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Vendor Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Vendor Name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="vendorInvoice"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Include in Email</FormLabel>
+                    <FormControl>
+                      <Controller
+                        name="vendorInvoice"
+                        control={form.control}
+                        render={({ field }) => (
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="ml-2"
+                          />
+                        )}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -472,6 +518,7 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
                 )}
               />
             </div>
+
             {isCreating || isUpdating ? (
               <ButtonLoading />
             ) : purchaseData ? (

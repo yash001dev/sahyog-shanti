@@ -39,6 +39,9 @@
           <p><strong>School Name:</strong> {{billingName}}</p>
           <p><strong>Created At:</strong> {{createdAt}}</p>
           <p><strong>Updated At:</strong> {{updatedAt}}</p>
+          {{#if vendorInvoice}}
+            <p><strong>Vendor Name:</strong> {{vendorName}}</p>
+          {{/if}}
         </div>
 
         <h2>Books</h2>

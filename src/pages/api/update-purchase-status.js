@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { sendEmail } from "./purchaseOrder";
 
 const prisma = new PrismaClient();
 
@@ -14,6 +15,57 @@ export default async function handler(req, res) {
 
     if (!status) {
       return res.status(400).json({ error: "Status is required" });
+    }
+
+    try {
+      if (status === "Approved") {
+        //Get the purchase orders
+        const purchaseOrders = await prisma.purchaseOrder.findMany({
+          where: {
+            id: {
+              in: ids,
+            },
+            createdBy: userId,
+          },
+        });
+
+        //Traverse through purchase orders and get company email
+        for (const purchaseOrder of purchaseOrders) {
+          const companyEmail = await prisma.company.findUnique({
+            where: {
+              id: purchaseOrder.companyId,
+            },
+            select: {
+              email: true,
+            },
+          });
+
+          //Get the shipping address
+          const shippingAddress = await prisma.shippingAddress.findUnique({
+            where: {
+              id: purchaseOrder.shippingAddressId,
+            },
+          });
+
+          //Book Information
+          const books = await prisma.book.findMany({
+            where: {
+              purchaseOrderId: purchaseOrder.id,
+            },
+          });
+
+          if (companyEmail) {
+            await sendEmail(companyEmail.email, {
+              ...purchaseOrder,
+              books,
+              shippingAddress: shippingAddress.address,
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error" });
     }
 
     //Update current status of purchase order
