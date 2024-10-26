@@ -172,6 +172,7 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
   };
 
   const standard1to12 = [
+    "Nursery",
     "Jr Kg",
     "Sr Kg",
     1,

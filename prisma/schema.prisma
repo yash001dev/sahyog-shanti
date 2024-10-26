@@ -34,6 +34,7 @@ model Company {
   id             Int             @id @default(autoincrement())
   name           String // Mandatory
   email          String? // Optional
+  secondaryEmail String? // Optional
   whatsappNumber String? // Optional
   createdBy      Int // Foreign key to User
   user           User            @relation(fields: [createdBy], references: [id])
@@ -45,7 +46,7 @@ model Company {
 model PurchaseOrder {
   id                Int             @id @default(autoincrement())
   purchaseOrderNo   String
-  schoolName        String
+  schoolName        String? // Optional
   billingName       String
   publicationName   String
   status            Boolean

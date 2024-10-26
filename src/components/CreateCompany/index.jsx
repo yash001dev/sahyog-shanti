@@ -31,10 +31,17 @@ const formSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email address.",
   }),
+  secondaryEmail: z
+    .string()
+    .email({
+      message: "Please enter a valid email address.",
+    })
+    .optional(),
   whatsappNumber: z
     .string()
     .min(10, { message: "WhatsApp number must be at least 10 digits." })
-    .regex(/^\d+$/, { message: "WhatsApp number should only contain digits." }),
+    .regex(/^\d+$/, { message: "WhatsApp number should only contain digits." })
+    .optional(),
 });
 
 function CreateCompany({ companyData, handleGoBack }) {
@@ -43,6 +50,7 @@ function CreateCompany({ companyData, handleGoBack }) {
     defaultValues: {
       name: "",
       email: "",
+      secondaryEmail: "",
       whatsappNumber: "",
     },
   });
@@ -169,7 +177,23 @@ function CreateCompany({ companyData, handleGoBack }) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Primary Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="you@example.com" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Please enter a valid email address.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="secondaryEmail"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Secondary Email</FormLabel>
                   <FormControl>
                     <Input placeholder="you@example.com" {...field} />
                   </FormControl>
