@@ -144,6 +144,7 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
             toast({
               title: "Purchase Order updated",
               status: "success",
+              className: "toast-background",
             });
             GoBack();
           }
@@ -164,6 +165,7 @@ const CreatePurchaseOrder = ({ purchaseData, GoBack }) => {
         toast({
           title: "Purchase Order created",
           status: "success",
+          className: "toast-background",
         });
         setBooks([{ id: 1 }]);
         form.reset();

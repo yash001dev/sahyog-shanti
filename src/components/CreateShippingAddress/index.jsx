@@ -89,6 +89,7 @@ function CreateShippingAddress({ companyData, handleGoBack }) {
         title: "Shipping Address created",
         description: "Your shipping address has been created successfully.",
         status: "success",
+        className: "toast-background",
       });
       form.reset();
     }
@@ -111,6 +112,7 @@ function CreateShippingAddress({ companyData, handleGoBack }) {
         title: "Company updated",
         description: "Your company has been updated successfully.",
         status: "success",
+        className: "toast-background",
       });
 
       form.reset();

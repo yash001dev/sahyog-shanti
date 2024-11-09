@@ -90,3 +90,8 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.toast-background {
+  background-color: rgba(0, 0, 0, 0.8) !important; /* Adjust the color and opacity as needed */
+  color: white; /* Ensure the text is readable */
+}

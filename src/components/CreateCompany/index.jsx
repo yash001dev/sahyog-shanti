@@ -50,8 +50,8 @@ function CreateCompany({ companyData, handleGoBack }) {
     defaultValues: {
       name: "",
       email: "",
-      secondaryEmail: "",
-      whatsappNumber: "",
+      secondaryEmail: undefined,
+      whatsappNumber: undefined,
     },
   });
 
@@ -104,6 +104,7 @@ function CreateCompany({ companyData, handleGoBack }) {
         title: "Company created",
         description: "Your company has been created successfully.",
         status: "success",
+        className: "toast-background",
       });
       form.reset();
     }
@@ -126,6 +127,7 @@ function CreateCompany({ companyData, handleGoBack }) {
         title: "Company updated",
         description: "Your company has been updated successfully.",
         status: "success",
+        className: "toast-background",
       });
 
       form.reset();

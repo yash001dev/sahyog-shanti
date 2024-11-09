@@ -22,7 +22,6 @@ const ViewShippingAddress = () => {
     isLoading,
   } = useGetShippingAddressesQuery();
   const { toast } = useToast();
-  
 
   const [formData, setFormData] = useState({
     name: "",
@@ -41,7 +40,11 @@ const ViewShippingAddress = () => {
     setLoadingId(id);
     try {
       await deleteCompanyAddress({ id });
-      toast({ title: "Company deleted", status: "success" });
+      toast({
+        title: "Company deleted",
+        status: "success",
+        className: "toast-background",
+      });
     } catch (error) {
       toast({ title: "Failed to delete company", status: "error" });
     }
@@ -55,7 +58,11 @@ const ViewShippingAddress = () => {
   const handleUpdate = async () => {
     try {
       // await useUpdateCompany(editingCompany, formData);
-      toast({ title: "Company updated", status: "success" });
+      toast({
+        title: "Company updated",
+        status: "success",
+        className: "toast-background",
+      });
       setEditingCompany(null);
       refetch();
     } catch (error) {

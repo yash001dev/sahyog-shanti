@@ -82,7 +82,11 @@ const ViewPurchaseOrder = () => {
 
   useEffect(() => {
     if (isUpdateSuccess) {
-      toast({ title: "Status updated", status: "success" });
+      toast({
+        title: "Status updated",
+        status: "success",
+        className: "toast-background",
+      });
     }
   }, [isUpdateSuccess]);
 
@@ -91,7 +95,11 @@ const ViewPurchaseOrder = () => {
     try {
       await deleteCompany({ id });
       setIsDialogOpen(false);
-      toast({ title: "Company deleted", status: "success" });
+      toast({
+        title: "Company deleted",
+        status: "success",
+        className: "toast-background",
+      });
     } catch (error) {
       toast({ title: "Failed to delete company", status: "error" });
     }
