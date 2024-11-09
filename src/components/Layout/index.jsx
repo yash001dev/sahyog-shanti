@@ -156,6 +156,15 @@ export default function Dashboard({ activeState = "/dashboard", children }) {
               >
                 Purchase Order
               </Link>
+              <Link
+                href="/dashboard/shipping-address"
+                className="text-muted-foreground hover:text-foreground"
+                style={{
+                  color: highlightActiveLink("/dashboard/shipping-address"),
+                }}
+              >
+                Shipping Address
+              </Link>
             </nav>
           </SheetContent>
         </Sheet>
