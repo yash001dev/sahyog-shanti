@@ -158,6 +158,12 @@ export default async function handler(req, res) {
             ...purchaseOrder,
           });
         }
+
+        //Send an email to the owner
+        await sendEmail("sahyogagencies641@gmail.com", {
+          ...req.body,
+          ...purchaseOrder,
+        });
       }
 
       res.status(201).json(purchaseOrder);
