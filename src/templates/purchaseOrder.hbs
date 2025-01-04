@@ -36,9 +36,7 @@
 
         <div class="info">
           <p><strong>Purchase Order No:</strong> {{purchaseOrderNo}}</p>
-          <p><strong>School Name:</strong> {{billingName}}</p>
-          <p><strong>Created At:</strong> {{createdAt}}</p>
-          <p><strong>Updated At:</strong> {{updatedAt}}</p>
+          <p><strong>School Name:</strong> {{schoolName}}</p>
           {{#if vendorInvoice}}
             <p><strong>Vendor Name:</strong> {{vendorName}}</p>
           {{/if}}
@@ -69,6 +67,9 @@
         <div class="info">
           <p><strong>Ship to:</strong> {{shippingAddress}}</p>
         </div>
+
+        <p><strong>Important Instructions: Please deliver ONLY NEW, PRINTED
+            price books. Do not send screen-printed books</strong></p>
 
         <p>If you have any questions regarding your order, feel free to reach
           out to us.</p>
