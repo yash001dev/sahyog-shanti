@@ -61,11 +61,11 @@ export default async function handler(req, res) {
               shippingAddress: shippingAddress.address,
             });
           }
-          await sendEmail("sahyogagencies641@gmail.com", {
-            ...purchaseOrder,
-            books,
-            shippingAddress: shippingAddress.address,
-          });
+          // await sendEmail("sahyogagencies641@gmail.com", {
+          //   ...purchaseOrder,
+          //   books,
+          //   shippingAddress: shippingAddress.address,
+          // });
         }
       }
     } catch (error) {
