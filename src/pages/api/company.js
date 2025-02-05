@@ -42,7 +42,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const { name, email, whatsappNumber } = req.body;
+    const { name, email, whatsappNumber, secondaryEmail } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: "Company name is mandatory" });
@@ -55,11 +55,13 @@ export default async function handler(req, res) {
           name,
           email,
           whatsappNumber,
+          secondaryEmail,
           createdBy: userId ?? 2, // Associate the company with the user
         },
       });
       return res.status(201).json(newCompany);
     } catch (error) {
+      console.log(error);
       return res.status(500).json({ error: "Company creation failed" });
     }
   }

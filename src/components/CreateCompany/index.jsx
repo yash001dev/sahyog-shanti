@@ -60,6 +60,7 @@ function CreateCompany({ companyData, handleGoBack }) {
       form.setValue("name", companyData.name);
       form.setValue("email", companyData.email);
       form.setValue("whatsappNumber", companyData.whatsappNumber);
+      form.setValue("secondaryEmail", companyData.secondaryEmail);
     }
   }, [companyData]);
 
