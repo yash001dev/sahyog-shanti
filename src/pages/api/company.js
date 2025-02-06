@@ -67,7 +67,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "PUT") {
-    const { id, name, email, whatsappNumber } = req.body;
+    const { id, name, email, whatsappNumber, secondaryEmail } = req.body;
 
     if (!id || !name) {
       return res
@@ -78,7 +78,7 @@ export default async function handler(req, res) {
     try {
       const updatedCompany = await prisma.company.update({
         where: { id },
-        data: { name, email, whatsappNumber },
+        data: { name, email, whatsappNumber, secondaryEmail },
       });
       return res.status(200).json(updatedCompany);
     } catch (error) {
